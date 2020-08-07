@@ -1,6 +1,5 @@
-# 基于组合优化的数据域迁移场景下行人再识别
-Domain Adaptive Person Re-Identification via Coupling Optimization
-![](intro.jpg)
+# Domain Adaptive Person Re-Identification via Coupling Optimization
+![](https://github.com/liu-xb/DIM_GLO/blob/master/intro.jpg)
 
 # 代码负责人
 刘晓滨
