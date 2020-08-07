@@ -1,0 +1,98 @@
+import torch.nn as nn
+import torch, math
+
+class LabelSmoothingLoss(nn.Module):
+    def __init__(self):
+        super(LabelSmoothingLoss, self).__init__()
+    def forward(self, output, label, device = 0):
+        C = output.shape[1]
+        N = output.shape[0]
+        smoothed_labels = torch.full(size=(N,C), fill_value=0.1/(C-1)).to(device)
+        smoothed_labels.scatter_(dim=1, index=torch.unsqueeze(label, dim=1), value=0.9)
+
+        log_prob = torch.nn.functional.log_softmax(output, dim=1)
+        return -torch.sum(log_prob * smoothed_labels) / N
+
+class LocalSimilarityLoss(nn.Module):
+    def __init__(self):
+        super(LocalSimilarityLoss, self).__init__()
+    def forward(self, feature, mask):
+        temperature_param = 0.1
+        # compute similarity
+        sim = torch.mm(feature, feature.t()) / temperature_param
+        sim = torch.exp(sim)
+        loss = 0
+        for i in range(feature.shape[0]):
+            denominator = torch.sum(sim[i][mask[i] == 0])
+            p = 1
+            positive_samples = sim[i][mask[i] == 1]
+            for sample in positive_samples:
+                p *= (sample / (sample + denominator))
+            loss -= torch.log(p+1e-15)
+        return loss / 1.0 / feature.shape[0]
+
+class GlobalSimilarityLossLabeled(nn.Module):
+    def __init__(self):
+        super(GlobalSimilarityLossLabeled, self).__init__()
+    def forward(self, batch_feature, batch_label, memory_feature, memory_label, temperature):
+        # compute similarity
+        sim = torch.mm(batch_feature, memory_feature.t()) / temperature
+        sim = torch.exp(sim)
+        loss = 0
+        for i in range(batch_feature.shape[0]):
+            mask = (memory_label == batch_label[i])
+            denominator = torch.sum(sim[i][mask == 0])
+            p = 1
+            positive_samples = sim[i][mask == 1]
+            for sample in positive_samples:
+                p *= (sample / (sample + denominator))
+            loss -= torch.log(p+1e-15)
+        return loss / 1.0 / batch_feature.shape[0]
+
+class GlobalSimilarityLossUnlabeled(nn.Module):
+    def __init__(self):
+        super(GlobalSimilarityLossUnlabeled, self).__init__()
+    def forward(self, batch_feature, batch_index, memory_feature, GTKNN, temperature = 0.05):
+        # compute similarity
+        sim = torch.mm(batch_feature, memory_feature.t()) / temperature
+        sim = torch.exp(sim)
+        loss = 0
+        for i in range(batch_feature.shape[0]):
+            denominator = torch.sum(sim[i])
+            # neighbors = sim[i].topk(k=200, dim = 0)
+
+            # minus ground truth mutual knn
+            for j in range(len(GTKNN[batch_index[i].item()])):
+                denominator -= sim[i][GTKNN[batch_index[i].item()][j]]
+
+            # minus dynamic knn
+            # count_neighbor = 0
+            # for j in range(400):
+            #     if not neighbors.indices[j] in GTKNN[batch_index[i].item()]:
+            #         count_neighbor += 1
+            #         denominator -= neighbors.values[j]
+            #         if count_neighbor == knn:
+            #             break
+
+            p = 1# (sim[i][batch_index[i]] / (denominator + sim[i][batch_index[i]])) ** target_p
+            
+            # for ground truth mutual knn
+            # num = 0
+            for j in range(len(GTKNN[batch_index[i].item()])):
+                temp_p = sim[i][GTKNN[batch_index[i].item()][j]] / (sim[i][GTKNN[batch_index[i].item()][j]] + denominator)
+                p *= temp_p
+                # num += 1
+                # if num > 20:
+                #     break
+
+            # for dynamic knn
+            # count_neighbor = 0
+            # for j in range(400):
+            #     if not neighbors.indices[j] in GTKNN[batch_index[i].item()]:
+            #         count_neighbor += 1
+            #         temp_p = neighbors.values[j] / (neighbors.values[j] + denominator)
+            #         p *= ( temp_p ** (target_p * (1 + 0.5 * math.exp(-j)) ) )
+            #         if count_neighbor == knn:
+            #             break
+            loss -= torch.log(p+1e-15)# * ((1-p) ** 2)
+        return loss /1. / batch_feature.shape[0]
