@@ -1,6 +1,6 @@
 # 基于组合优化的数据域迁移场景下行人再识别
 Domain Adaptive Person Re-Identification via Coupling Optimization
-![](https://git.pcl.ac.cn/pkuvmc/DIM_GLO/media/branch/master/intro.jpg)
+![](intro.jpg)
 
 # 代码负责人
 刘晓滨
