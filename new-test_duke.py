@@ -172,6 +172,8 @@ def DukeInLineTest(MY_GPU, SNAPSHOT):
     return result[0],result[-1]
 
 acc = DukeInLineTest(0, "camera_gap_0.5-0.761-0.583.pt")
+# download camera_gap_0.5-0.761-0.583.pt from https://drive.google.com/file/d/1bDs5YGOg1EdqBpPLhuFAieUvn-NaYWus/view?usp=sharing
+
 print('Rank1:', acc[0], 'mAP:', acc[1])
 
 print(time.time()-tic)
