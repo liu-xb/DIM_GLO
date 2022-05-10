@@ -28,6 +28,8 @@ Change the path of Market-1501 to where your dataset are at Line 81 in train.py.
 #### Duke (Target):
 Change the path of DukeMTMC-reID to where your dataset are at Line 20 in reid/compute_memory_bank.py, Line 103 and Line 108 in reid/compute_map.py, Line 106, 107 and 108 in reid/DukeDataProvider.py.
 
+The trained model with Market-1501 as source and Duke as target can be downloaded at [here](https://drive.google.com/file/d/1bDs5YGOg1EdqBpPLhuFAieUvn-NaYWus/view?usp=sharing), this model achieves 0.761 and 0.583 in Rank1 and mAP accuracy, respectively.
+
 # Run the code:
 Run ``` python train.py ```  in terminal
 
