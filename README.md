@@ -1,7 +1,22 @@
-# Domain Adaptive Person Re-Identification via Coupling Optimization
+# [Domain Adaptive Person Re-Identification via Coupling Optimization](https://dl.acm.org/doi/10.1145/3394171.3413904)
 ![](https://github.com/liu-xb/DIM_GLO/blob/master/intro.jpg)
 
-(Codes use Market-1501 as source dataset and DukeMTMC-reID as target dataset.)
+Codes of our paper "Domain Adaptive Person Re-Identification via Coupling Optimization" ACM MM 2020. If you find this useful, please kindly cite our paper:
+
+```
+@inbook{liu2020dimglo,
+author = {Liu, Xiaobin and Zhang, Shiliang},
+title = {Domain Adaptive Person Re-Identification via Coupling Optimization},
+year = {2020},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3394171.3413904},
+pages = {547–555},
+numpages = {9}
+}
+```
+
+(Sample code uses Market-1501 as source dataset and DukeMTMC-reID as target dataset.)
 ## Performance
 Market->Duke: Rank1 0.755, mAP 0.575
 Duke->Market: Rank1 0.870, mAP 0.643
